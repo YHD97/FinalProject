@@ -1,16 +1,22 @@
 import cv2
 
-cap = cv2.VideoCapture("1.mp4")
-filename = 0
-while(True):
-    ret, frame = cap.read()
+vc = cv2.VideoCapture('1.mp4')  # 读入视频文件
+c = 1
+d = 0
+if vc.isOpened():  # 判断是否正常打开
+    rval, frame = vc.read()
+else:
+    rval = False
 
-    if filename % 120 == 0:
-        cv2.imwrite("./ImageData2/2v1_" + str(filename) + ".jpg", frame)
-        cv2.imshow('frame', frame)
-    filename+=1
-    if cv2.waitKey(1) & 0xFF == ord('0'):
-        break
+timeF = 10  # 视频帧计数间隔频率
+# try:
 
-cap.release()
-cv2.destroyAllWindows()
+while rval:  # 循环读取视频帧
+    rval, frame = vc.read()
+    if (c % timeF == 0):  # 每隔timeF帧进行存储操作
+        d = d+1
+        cv2.imwrite('data/Images2/' + str(d) + '.jpg', frame)  # 存储为图像
+        print(d)
+    c = c + 1
+    cv2.waitKey(1)
+vc.release()
