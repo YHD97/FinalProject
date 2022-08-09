@@ -14,6 +14,8 @@ from version import targetDetacter
 
 from mss import mss
 
+import random
+
 
 # from .Version.ChampionPosition import ChampionPosition
 
@@ -23,7 +25,7 @@ class LoLEnv(gym.Env):
 
     def __init__(self):
         self.action_space = spaces.Discrete(14)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(69, 26, 26), dtype=float)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(640, 640), dtype=float)
         self.state = {
             'stats':
                 {
@@ -133,10 +135,9 @@ class LoLEnv(gym.Env):
         # self.state['positions']['myChampion'] = champion_position
         for detection in detections:
             self.state['positions'][detection] = detections[detection]
-
-        if (self.state['positions']['enemyMinions'] is not None) or (
-                self.state['positions']['allyMinions'] is not None) or (
-                self.state['positions']['enemyChampion'] is not None):
+        if (self.state['positions']['enemyMinions'].shape[0] != 0) or (
+                self.state['positions']['allyMinions'].shape[0] != 0) or (
+                self.state['positions']['enemyChampion'].shape[0] != 0):
             self.away_time = time.time()
 
     def step(self, action):
@@ -163,11 +164,12 @@ class LoLEnv(gym.Env):
         self.update_positions(observation)
         self.update_stats(stats)
 
-        return sct_img, reward, done, {}
+        return np.array(sct_img), reward, done, self.state['stats']
 
-    def reset(self, **kwargs):
+    def reset(self, evaluation=False):
         try:
             leave_custom_game()
+            time.sleep(20)
         except RuntimeError:
             pass
         create_custom_game()
@@ -178,8 +180,6 @@ class LoLEnv(gym.Env):
         self.away_time = time.time()
         level_up_ability()
         self.player.update()
-        buy(self.player.get_gold())
-        go_to_Line()
         self.state = {
             'stats': {
                 'kills': self.player.kills,
@@ -199,10 +199,16 @@ class LoLEnv(gym.Env):
 
             'positions': defaultdict(lambda: None)
         }
+        buy(self.player.get_gold())
+        go_to_Line()
         sct_img = self.sct.grab(self.sct.monitors[1])
         observation = self.get_observation(sct_img)
         self.update_positions(observation)
-        return sct_img
+        if evaluation:
+            for _ in range(np.random.randint(0, 10)):
+                action = np.random.randint(0, self.action_space)
+                self.env.step(action)
+        return np.array(sct_img)
 
     def render(self, mode='human'):
         pass

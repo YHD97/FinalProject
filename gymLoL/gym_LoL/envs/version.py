@@ -32,7 +32,6 @@ class targetDetacter():
         # self.allUnitPosition['enemyChampion'] = self.ChampionPositionDict.enemyChampionPositionDict
         # self.allUnitPosition['Minions'] = self.minionsDict.minionsDict
         # self.allUnitPosition['tower'] = self.towerDict.towerDict
-        print("get position")
         return self.allUnitPosition
 
 

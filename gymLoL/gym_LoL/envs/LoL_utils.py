@@ -26,7 +26,9 @@ images = {
     "Training": "Image/SetGame/Training.png",
     "Vayne": "Image/SetGame/Vayne.png",
     "CheckGame": "Image/Ingame/CheckGame.png",
-    "inGame": "Image/Ingame/inGame.png"
+    "inGame": "Image/Ingame/inGame.png",
+    "ExitGame": "Image/Ingame/ExitGame.png",
+    "LeaveGame": "Image/Ingame/LeaveGame.png"
 }
 item_path = [('Doran\'s Blade', 450), ('Doran\'s Blade', 450), ('Doran\'s Blade', 450), ('Doran\'s Blade', 450),
              ('Doran\'s Blade', 450), ('Doran\'s Blade', 450)]
@@ -61,7 +63,7 @@ def level_up_ability():
 def click_image(location, con=0.9):
     spot = pyautogui.locateCenterOnScreen(location, confidence=con)
     if spot:
-        pyautogui.click(spot)
+        left_click(spot[0], spot[1])
     return spot
 
 
@@ -176,8 +178,8 @@ def go_to_Line():
     MAX_HEIGHT = mss().monitors[1]['height']  # 2160
     # mouse_controller.position = (int(0.9223958 * MAX_WIDTH), int(0.8777777 * MAX_HEIGHT))
 
-    right_click(int(0.965 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
-    time.sleep(30)
+    right_click(int(0.96 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
+    time.sleep(27)
 
 
 def create_custom_game():
@@ -209,15 +211,11 @@ def leave_custom_game():
         gw.getWindowsWithTitle('League of Legends (TM) Client')[0]
     except IndexError:
         raise RuntimeError('League of Legends client not running')
-    time.sleep(10)
 
-    if pyautogui.locateOnScreen(images['inGame'], confidence=0.8):
-        pyautogui.keyDown('altleft')
-        pyautogui.press('f4')
-        pyautogui.press('f4')
-        pyautogui.keyUp('altleft')
-        time.sleep(10)
-
+    cast_action('esc', 0.5)
+    time.sleep(1)
+    click_image(images.get("ExitGame"))
+    click_image(images.get("LeaveGame"))
 
 
 def useQ(champion, opponent, positions, gold):
@@ -264,7 +262,9 @@ def goHome(champion, opponent, positions, gold):
     time.sleep(8)
     cast_action('b', 0.5)
     time.sleep(8)
-    buy(gold)
+    if gold >= 450:
+        buy(gold)
+    time.sleep(5)
     go_to_Line()
 
 
@@ -343,7 +343,7 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
 
     # abilitiesW
     region = (int(0.42 * width), int(0.88 * height), int(0.45 * width), int(0.94 * height))
-    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
     res = cv2.matchTemplate(img_gray, templateW, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, _ = cv2.minMaxLoc(res)
     if max_val > 0.8:
@@ -352,7 +352,7 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
         stats['W'] = False
     # abilitiesE
     region = (int(0.45 * width), int(0.88 * height), int(0.48 * width), int(0.98 * height))
-    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
     res = cv2.matchTemplate(img_gray, templateE, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, _ = cv2.minMaxLoc(res)
 
@@ -363,7 +363,7 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
 
     # abilitiesR
     region = (int(0.485 * width), int(0.88 * height), int(0.515 * width), int(0.94 * height))
-    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
     res = cv2.matchTemplate(img_gray, templateR, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, _ = cv2.minMaxLoc(res)
     if max_val > 0.8:
@@ -390,13 +390,10 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
         stats['F'] = True
     else:
         stats['F'] = False
-    print("state updated")
     return stats
 
 
 if __name__ == '__main__':
-    time.sleep(5)
-    goHome()
     # img = cv2.imread('Image/testImage/Screen22.png', 0)
     # img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # template = cv2.imread('Image/Ingame/Ashe.png', 0)
@@ -404,44 +401,47 @@ if __name__ == '__main__':
     # _, max_val, _, _ = cv2.minMaxLoc(res)
     # if max_val > 0.8:
     #     print(1)
+    perform_action(14, 'xx', 'xx', [1, 2, 3], 500)
 
-    # state = {
-    #
-    #     'kills': 0,
-    #     'deaths': 0,
-    #     'assists': 0,
-    #     'minion_kills': 0,
-    #     'health': 100,
-    #     'mana': 100,
-    #     'opponent_health': 100,
-    #     'Q': False,
-    #     'W': False,
-    #     'E': False,
-    #     'R': False,
-    #     'D': True,
-    #     'F': True
-    #
-    # }
-    # sct = mss()
-    # EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
-    # opponent_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    # abilitiesQ_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    # abilitiesW_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    # abilitiesE_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    # abilitiesR_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    # abilitiesD_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
-    # abilitiesF_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
-    # while True:
-    #     sct_img = sct.grab(sct.monitors[1])
-    #     start = time.time()
-    #     # open_cv_image = np.array(pyautogui.screenshot(region=(960, 540, 1920, 1080)))[:, :, ::-1].copy()
-    #     stats = get_stats(sct_img, state, opponent_template, abilitiesQ_template,
-    #                       abilitiesW_template, abilitiesE_template, abilitiesR_template,
-    #                       abilitiesD_template, abilitiesF_template)
-    #     print(time.time() - start)
-    # cv2.imshow('image', np.array(sct_img))
-    # if cv2.waitKey(1) & 0Xff == ord('q'):
-    #     break
+    state = {
+
+        'kills': 0,
+        'deaths': 0,
+        'assists': 0,
+        'minion_kills': 0,
+        'health': 100,
+        'mana': 100,
+        'opponent_health': 100,
+        'Q': False,
+        'W': False,
+        'E': False,
+        'R': False,
+        'D': True,
+        'F': True
+
+    }
+    sct = mss()
+    time.sleep(5)
+    leave_custom_game(sct)
+    EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
+    opponent_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesQ_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesW_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesE_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesR_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesD_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
+    abilitiesF_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
+    while True:
+        sct_img = sct.grab(sct.monitors[1])
+        start = time.time()
+        # open_cv_image = np.array(pyautogui.screenshot(region=(960, 540, 1920, 1080)))[:, :, ::-1].copy()
+        stats = get_stats(sct_img, state, opponent_template, abilitiesQ_template,
+                          abilitiesW_template, abilitiesE_template, abilitiesR_template,
+                          abilitiesD_template, abilitiesF_template)
+        print(time.time() - start)
+        cv2.imshow('image', np.array(sct_img))
+        if cv2.waitKey(1) & 0Xff == ord('q'):
+            break
     # time.sleep(5)
     # PressKeyPynput(DIK_Y)
     # ReleaseKeyPynput(DIK_Y)
