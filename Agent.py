@@ -66,8 +66,10 @@ import numpy as np
 
 import tensorflow as tf
 
+
 class Agent(object):
     """Implements a standard DDDQN agent"""
+
     def __init__(self,
                  dqn,
                  target_dqn,
@@ -75,16 +77,15 @@ class Agent(object):
                  n_actions,
                  input_shape=(84, 84),
                  batch_size=32,
-                 history_length=1,
+                 history_length=4,
                  eps_initial=1,
                  eps_final=0.1,
                  eps_final_frame=0.01,
                  eps_evaluation=0.0,
-                 eps_annealing_frames=1000000,
-                 replay_buffer_start_size=50000,
-                 max_frames=25000000,
+                 eps_annealing_frames=100,
+                 replay_buffer_start_size=50,
+                 max_frames=2500,
                  use_per=True):
-
 
         self.n_actions = n_actions
         self.input_shape = input_shape
@@ -108,9 +109,10 @@ class Agent(object):
         # Slopes and intercepts for exploration decrease
         # (Credit to Fabio M. Graetz for this and calculating epsilon based on frame number)
         self.slope = -(self.eps_initial - self.eps_final) / self.eps_annealing_frames
-        self.intercept = self.eps_initial - self.slope*self.replay_buffer_start_size
-        self.slope_2 = -(self.eps_final - self.eps_final_frame) / (self.max_frames - self.eps_annealing_frames - self.replay_buffer_start_size)
-        self.intercept_2 = self.eps_final_frame - self.slope_2*self.max_frames
+        self.intercept = self.eps_initial - self.slope * self.replay_buffer_start_size
+        self.slope_2 = -(self.eps_final - self.eps_final_frame) / (
+                    self.max_frames - self.eps_annealing_frames - self.replay_buffer_start_size)
+        self.intercept_2 = self.eps_final_frame - self.slope_2 * self.max_frames
 
         # DQN
         self.DQN = dqn
@@ -129,9 +131,9 @@ class Agent(object):
         elif frame_number < self.replay_buffer_start_size:
             return self.eps_initial
         elif frame_number >= self.replay_buffer_start_size and frame_number < self.replay_buffer_start_size + self.eps_annealing_frames:
-            return self.slope*frame_number + self.intercept
+            return self.slope * frame_number + self.intercept
         elif frame_number >= self.replay_buffer_start_size + self.eps_annealing_frames:
-            return self.slope_2*frame_number + self.intercept_2
+            return self.slope_2 * frame_number + self.intercept_2
 
     def get_action(self, frame_number, state, evaluation=False):
         """Query the DQN for an action given a state
@@ -202,10 +204,13 @@ class Agent(object):
         """
 
         if self.use_per:
-            (states, actions, rewards, new_states, terminal_flags), importance, indices = self.replay_buffer.get_minibatch(batch_size=self.batch_size, priority_scale=priority_scale)
-            importance = importance ** (1-self.calc_epsilon(frame_number))
+            (states, actions, rewards, new_states,
+             terminal_flags), importance, indices = self.replay_buffer.get_minibatch(batch_size=self.batch_size,
+                                                                                     priority_scale=priority_scale)
+            importance = importance ** (1 - self.calc_epsilon(frame_number))
         else:
-            states, actions, rewards, new_states, terminal_flags = self.replay_buffer.get_minibatch(batch_size=self.batch_size, priority_scale=priority_scale)
+            states, actions, rewards, new_states, terminal_flags = self.replay_buffer.get_minibatch(
+                batch_size=self.batch_size, priority_scale=priority_scale)
 
         # Main DQN estimates best action in new states
         arg_q_max = self.DQN.predict(new_states).argmax(axis=1)
@@ -215,13 +220,14 @@ class Agent(object):
         double_q = future_q_vals[range(batch_size), arg_q_max]
 
         # Calculate targets (bellman equation)
-        target_q = rewards + (gamma*double_q * (1-terminal_flags))
+        target_q = rewards + (gamma * double_q * (1 - terminal_flags))
 
         # Use targets to calculate loss (and use loss to calculate gradients)
         with tf.GradientTape() as tape:
             q_values = self.DQN(states)
 
-            one_hot_actions = tf.keras.utils.to_categorical(actions, self.n_actions, dtype=np.float32)  # using tf.one_hot causes strange errors
+            one_hot_actions = tf.keras.utils.to_categorical(actions, self.n_actions,
+                                                            dtype=np.float32)  # using tf.one_hot causes strange errors
             Q = tf.reduce_sum(tf.multiply(q_values, one_hot_actions), axis=1)
 
             error = Q - target_q
@@ -261,7 +267,8 @@ class Agent(object):
 
         # Save meta
         with open(folder_name + '/meta.json', 'w+') as f:
-            f.write(json.dumps({**{'buff_count': self.replay_buffer.count, 'buff_curr': self.replay_buffer.current}, **kwargs}))  # save replay_buffer information and any other information
+            f.write(json.dumps({**{'buff_count': self.replay_buffer.count, 'buff_curr': self.replay_buffer.current},
+                                **kwargs}))  # save replay_buffer information and any other information
 
     def load(self, folder_name, load_replay_buffer=True):
         """Load a previously saved Agent from a folder
@@ -273,12 +280,14 @@ class Agent(object):
 
         if not os.path.isdir(folder_name):
             raise ValueError(f'{folder_name} is not a valid directory')
-
+        print("start loading model")
         # Load DQNs
         self.DQN = tf.keras.models.load_model(folder_name + '/dqn.h5')
+        print("model is loaded")
+
         self.target_dqn = tf.keras.models.load_model(folder_name + '/target_dqn.h5')
         self.optimizer = self.DQN.optimizer
-
+        print("model is loaded")
         # Load replay buffer
         if load_replay_buffer:
             self.replay_buffer.load(folder_name + '/replay-buffer')
@@ -290,6 +299,6 @@ class Agent(object):
         if load_replay_buffer:
             self.replay_buffer.count = meta['buff_count']
             self.replay_buffer.current = meta['buff_curr']
-
+        print('load buffer')
         del meta['buff_count'], meta['buff_curr']  # we don't want to return this information
         return meta

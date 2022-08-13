@@ -12,7 +12,7 @@ class ChampionPosition:
         self.myChampion = cv2.imread(self.path + r'\test5.png')
         self.enemyChampion = cv2.imread(self.path + r'\test4.png')
         # champion health bar mask
-        self.championMask = cv2.imread(self.path + '\Champion\championMask.png')
+        self.championMask = cv2.imread(self.path + '\championMask.png')
 
         self.myChampionPositionDict = dict()
         self.enemyChampionPositionDict = dict()
@@ -46,7 +46,7 @@ class ChampionPosition:
         self.myChampionPositionDict['myChampion'] = newPositions
 
     def getEnemyChampionPosition(self, img):
-        positions = colourHelper.findPositions(img, self.enemyChampion, self.championMask, threshold=0.99,
+        positions = colourHelper.findPositions(img, self.enemyChampion, self.championMask, threshold=0.8,
                                                colour=[0, 0, 255])
         newPositions = np.array(self.championPositionCheck(img, positions, red=True))
         if newPositions.shape[0] != 0:

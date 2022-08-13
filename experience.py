@@ -40,7 +40,7 @@ class ReplayBuffer:
     This implementation was heavily inspired by Fabio M. Graetz's replay buffer
     here: https://github.com/fg91/Deep-Q-Learning/blob/master/DQN.ipynb"""
 
-    def __init__(self, size=1000000, input_shape=(640, 640), history_length=4, use_per=True):
+    def __init__(self, size=1000, input_shape=(640, 640), history_length=4, use_per=True):
         """
         Arguments:
             size: Integer, Number of stored transitions
@@ -160,10 +160,14 @@ class ReplayBuffer:
         if not os.path.isdir(folder_name):
             os.mkdir(folder_name)
 
-        np.save(folder_name + '/actions.npy', self.actions)
-        np.save(folder_name + '/frames.npy', self.frames)
-        np.save(folder_name + '/rewards.npy', self.rewards)
-        np.save(folder_name + '/terminal_flags.npy', self.terminal_flags)
+        np.save(folder_name + '/actions.npy', self.actions, allow_pickle=True,
+                    fix_imports=True)
+        np.save(folder_name + '/frames.npy', self.frames, allow_pickle=True,
+                    fix_imports=True)
+        np.save(folder_name + '/rewards.npy', self.rewards, allow_pickle=True,
+                    fix_imports=True)
+        np.save(folder_name + '/terminal_flags.npy', self.terminal_flags, allow_pickle=True,
+                    fix_imports=True)
 
     def load(self, folder_name):
         """Loads the replay buffer from a folder"""

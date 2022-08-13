@@ -24,8 +24,8 @@ class LoLEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
-        self.action_space = spaces.Discrete(14)
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(640, 640), dtype=float)
+        self.action_space = spaces.Discrete(11)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(84, 84), dtype=float)
         self.state = {
             'stats':
                 {
@@ -39,9 +39,9 @@ class LoLEnv(gym.Env):
                     'Q': False,
                     'W': False,
                     'E': False,
-                    'R': False,
-                    'D': True,
-                    'F': True
+                    'R': False
+                    # 'D': True,
+                    # 'F': True
                 },
 
             'positions': defaultdict(lambda: None)
@@ -84,6 +84,7 @@ class LoLEnv(gym.Env):
                 reward += 5
             else:
                 reward -= 5
+
         if action == 8:
             reward -= 5
 
@@ -99,29 +100,24 @@ class LoLEnv(gym.Env):
             else:
                 reward -= 5
 
-        if action == 11:
-            if self.state['stats']['D'] and self.state['stats']['health'] < 50:
-                reward += 5
-            else:
-                reward -= 5
-
-        if action == 12:
-            if self.state['stats']['F']:
-                reward += 10
-            else:
-                reward -= 10
-        if action == 13:
-            if self.state['stats']['health'] < 20:
-                reward += 10
-            else:
-                reward -= 10
+        # if action == 11:
+        #     if self.state['stats']['D'] and self.state['stats']['health'] < 50:
+        #         reward += 5
+        #     else:
+        #         reward -= 5
+        #
+        # if action == 12:
+        #     if self.state['stats']['F']:
+        #         reward += 10
+        #     else:
+        #         reward -= 10
 
         if self.player.kills == 1:
             reward += 100
             done = True
 
         elif self.player.deaths == 1:
-            reward -= 100
+            reward -= 50
             done = True
 
         return reward, done
@@ -142,13 +138,13 @@ class LoLEnv(gym.Env):
 
     def step(self, action):
         level_up_ability()
-        perform_action(action, 'myChampion', 'enemyChampion', self.state['positions'], self.player.get_gold())
+        perform_action(action, 'myChampion', 'enemyChampion', self.state['positions'])
         self.player.update()
         sct_img = self.sct.grab(self.sct.monitors[1])
         observation = self.get_observation(sct_img)
         stats = self.state['stats']
         if time.time() - self.start_time > 600:
-            reward, done = -10001, True
+            reward, done = -100, True
         else:
             try:
                 stats['health'] = int(self.player.health)
@@ -160,7 +156,7 @@ class LoLEnv(gym.Env):
                                   self.abilitiesD_template, self.abilitiesF_template)
                 reward, done = self.get_reward(stats, action)
             except RuntimeError:
-                reward, done = -10001, True
+                reward, done = -100, True
         self.update_positions(observation)
         self.update_stats(stats)
 
@@ -192,14 +188,14 @@ class LoLEnv(gym.Env):
                 'Q': self.player.abilitiesQ,
                 'W': self.player.abilitiesW,
                 'E': self.player.abilitiesE,
-                'R': self.player.abilitiesR,
-                'D': True,
-                'F': True
+                'R': self.player.abilitiesR
+                # 'D': True,
+                # 'F': True
             },
 
             'positions': defaultdict(lambda: None)
         }
-        buy(self.player.get_gold())
+        buy()
         go_to_Line()
         sct_img = self.sct.grab(self.sct.monitors[1])
         observation = self.get_observation(sct_img)
@@ -209,6 +205,13 @@ class LoLEnv(gym.Env):
                 action = np.random.randint(0, self.action_space)
                 self.env.step(action)
         return np.array(sct_img)
+
+    def close(self):
+        try:
+            leave_custom_game()
+            time.sleep(20)
+        except RuntimeError:
+            pass
 
     def render(self, mode='human'):
         pass

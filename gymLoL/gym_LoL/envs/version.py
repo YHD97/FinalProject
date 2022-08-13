@@ -39,7 +39,7 @@ targetPosition = targetDetacter()
 
 
 def test(img0=None):
-    img0 = cv2.imread(r'D:\FinalProject\Image\testImage\Screen02.png')
+    #img0 = cv2.imread(r'D:\FinalProject\Image\testImage\Screen02.png')
     targetPosition.getTargetpositions(img0)
     myChampionPosition = targetPosition.allUnitPosition['myChampion']
     for pos in myChampionPosition:

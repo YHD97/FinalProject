@@ -12,7 +12,7 @@ class MinionsPosition:
         self.allyMinions = cv2.imread(self.path +r'\test6.png')
         self.enemyMinions = cv2.imread(self.path +r'\test3.png')
         # minions health bar mask
-        self.minionsMask = cv2.imread(self.path + '\Minions\minionsMask.png')
+        self.minionsMask = cv2.imread(self.path + '\minionsMask.png')
 
         self.minionsDict = dict()
 

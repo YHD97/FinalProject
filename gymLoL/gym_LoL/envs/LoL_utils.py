@@ -28,32 +28,43 @@ images = {
     "CheckGame": "Image/Ingame/CheckGame.png",
     "inGame": "Image/Ingame/inGame.png",
     "ExitGame": "Image/Ingame/ExitGame.png",
-    "LeaveGame": "Image/Ingame/LeaveGame.png"
+    "LeaveGame": "Image/Ingame/LeaveGame.png",
+    "OK": "Image/Ingame/OK.png"
 }
-item_path = [('Doran\'s Blade', 450), ('Doran\'s Blade', 450), ('Doran\'s Blade', 450), ('Doran\'s Blade', 450),
-             ('Doran\'s Blade', 450), ('Doran\'s Blade', 450)]
+
 purchased_items = []
 
 
-def buy(gold):
-    current_gold = gold
+def buy():
+    # current_ =
     pydirectinput.press('p')
+    item_path = [('Long Sword', 450)]
 
-    while len(item_path) > 0 and current_gold > item_path[0][1]:
+    if len(item_path) > 0:
         pydirectinput.keyDown('ctrl')
         pydirectinput.keyDown('l')
         pydirectinput.keyUp('ctrl')
         pydirectinput.keyUp('l')
 
         pyautogui.write(item_path[0][0])
-        current_gold -= item_path[0][1]
-        purchased_items.append(item_path.pop(0))
+        # current_ -= item_path[0][1]
+        # purchased_items.append(item_path.pop(0))
         cast_action('enter', 0.2)
     cast_action('esc', 0.2)
 
 
+def go_to_Line():
+    global MAX_WIDTH, MAX_HEIGHT
+    MAX_WIDTH = mss().monitors[1]['width']  # 3840
+    MAX_HEIGHT = mss().monitors[1]['height']  # 2160
+    # mouse_controller.position = (int(0.9223958 * MAX_WIDTH), int(0.8777777 * MAX_HEIGHT))
+
+    right_click(int(0.97 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
+    time.sleep(30)
+
+
 def level_up_ability():
-    cast_order = ["r", "q", "e", "w"]
+    cast_order = ["r", "q", "w", "e"]
     pydirectinput.keyDown("ctrl")
     for a in cast_order:
         cast_action(a, 0.5)
@@ -100,56 +111,6 @@ def right_click(x, y):
     time.sleep(0.1)
 
 
-def no_op(champion, opponent, positions, gold):
-    pass
-
-
-def move_up(champion, opponent, positions, gold):
-    if positions[champion] is None:
-        return
-    x, y = positions[champion][0]
-    right_click(int(x), max(0, int(y - 100)))
-
-
-def move_right(champion, opponent, positions, gold):
-    if positions[champion].shape[0] == 0:
-        return
-    x, y = positions[champion][0]
-    right_click(int(x + 100), int(y + 50))
-
-
-def move_down(champion, opponent, positions, gold):
-    if positions[champion].shape[0] == 0:
-        return
-    x, y = positions[champion][0]
-    right_click(int(x), int(y + 200))
-
-
-def move_left(champion, opponent, positions, gold):
-    if positions[champion].shape[0] == 0:
-        return
-    x, y = positions[champion][0]
-    right_click(int(x - 100), int(y + 50))
-
-
-def attack_minion(champion, opponent, positions, gold):
-    if positions['enemyMinions'].shape[0] == 0:
-        return
-    x, y = positions['enemyMinions'][0]
-
-    cast_action('a', 0.5)
-    left_click(int(x), int(y))
-
-
-def attack_champion(champion, opponent, positions, gold):
-    if positions[opponent].shape[0] == 0:
-        return
-    x, y = positions[opponent][0]
-
-    cast_action('a', 0.5)
-    left_click(int(x), int(y))
-
-
 def find_subset_indices(sub, lst):
     indices = []
     ln = len(sub)
@@ -172,16 +133,6 @@ def wait_for_game():
     raise TimeoutError('Retry limit exhausted')
 
 
-def go_to_Line():
-    global MAX_WIDTH, MAX_HEIGHT
-    MAX_WIDTH = mss().monitors[1]['width']  # 3840
-    MAX_HEIGHT = mss().monitors[1]['height']  # 2160
-    # mouse_controller.position = (int(0.9223958 * MAX_WIDTH), int(0.8777777 * MAX_HEIGHT))
-
-    right_click(int(0.96 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
-    time.sleep(27)
-
-
 def create_custom_game():
     try:
         game_window = gw.getWindowsWithTitle('League of Legends')[0]
@@ -199,7 +150,7 @@ def create_custom_game():
     click_image(images.get("LockIn"))
     print('Wait for Start Game')
     wait_for_game()
-    cast_action('y', 1)
+    cast_action('y', 0.1)
     time.sleep(0.5)
     pydirectinput.keyDown("shift")
     pydirectinput.press("h")
@@ -212,29 +163,87 @@ def leave_custom_game():
     except IndexError:
         raise RuntimeError('League of Legends client not running')
 
-    cast_action('esc', 0.5)
+    cast_action('esc', 0.1)
     time.sleep(1)
     click_image(images.get("ExitGame"))
     click_image(images.get("LeaveGame"))
 
 
-def useQ(champion, opponent, positions, gold):
-    cast_action('q', 0.5)
+def no_op(champion, opponent, positions, ):
+    cast_action('s', 0.1)
+
+
+def move_up(champion, opponent, positions, ):
+    if positions[champion].shape[0] == 0:
+        return
+    x, y = positions[champion][0]
+    right_click(int(x), int(y))
+    cast_action('a', 0.1)
+    left_click(int(x), max(0, int(y - 200)))
+
+
+def move_right(champion, opponent, positions, ):
+    if positions[champion].shape[0] == 0:
+        return
+    x, y = positions[champion][0]
+    right_click(int(x), int(y))
+    cast_action('a', 0.1)
+    left_click(int(x + 200), int(y + 50))
+
+
+def move_down(champion, opponent, positions, ):
+    if positions[champion].shape[0] == 0:
+        return
+    x, y = positions[champion][0]
+    right_click(int(x), int(y))
+    cast_action('a', 0.1)
+    left_click(int(x), int(y + 200))
+
+
+def move_left(champion, opponent, positions, ):
+    if positions[champion].shape[0] == 0:
+        return
+    x, y = positions[champion][0]
+    right_click(int(x), int(y))
+    cast_action('a', 0.1)
+    left_click(int(x - 200), int(y + 50))
+
+
+def attack_minion(champion, opponent, positions, ):
+    if positions['enemyMinions'].shape[0] == 0:
+        return
+    x, y = positions['enemyMinions'][0]
+    right_click(int(x), int(y))
+    cast_action('a', 0.1)
+    left_click(int(x), int(y))
+
+
+def attack_champion(champion, opponent, positions, ):
+    if positions[opponent].shape[0] == 0:
+        return
+    x, y = positions[opponent][0]
+    right_click(int(x), int(y))
+    cast_action('a', 0.1)
+    left_click(int(x), int(y))
+
+
+def useQ(champion, opponent, positions):
+    cast_action('q', 0.1)
     if positions[opponent].shape[0] != 0:
         x, y = positions[opponent][0]
     elif positions['enemyMinions'].shape[0] != 0:
         x, y = positions['enemyMinions'][0]
     else:
         return
-    cast_action('a', 0.5)
+    cast_action('a', 0.1)
     left_click(int(x), int(y))
 
 
-def useW(champion, opponent, positions, gold):
+def useW(champion, opponent, positions):
     return
 
 
-def useE(champion, opponent, positions, gold):
+def useE(champion, opponent, positions):
     if positions[opponent].shape[0] != 0:
         x, y = positions[opponent][0]
     elif positions['enemyMinions'].shape[0] != 0:
@@ -242,30 +251,29 @@ def useE(champion, opponent, positions, gold):
     else:
         return
     right_click(int(x), int(y))
-    cast_action('e', 0.5)
+    cast_action('e', 0.1)
 
 
-def useR(champion, opponent, positions, gold):
-    cast_action('R', 0.5)
+def useR(champion, opponent, positions):
+    cast_action('R', 0.1)
 
 
-def useD(champion, opponent, positions, gold):
-    cast_action('D', 0.5)
+# def useD(champion, opponent, positions):
+#     cast_action('D', 0.1)
+#
+#
+# def useF(champion, opponent, positions):
+#     cast_action('F', 0.1)
 
 
-def useF(champion, opponent, positions, gold):
-    cast_action('F', 0.5)
-
-
-def goHome(champion, opponent, positions, gold):
-    right_click(int(0.88 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
-    time.sleep(8)
-    cast_action('b', 0.5)
-    time.sleep(8)
-    if gold >= 450:
-        buy(gold)
-    time.sleep(5)
-    go_to_Line()
+# def goHome(champion, opponent, positions):
+#     right_click(int(0.88 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
+#     time.sleep(8)
+#     cast_action('b', 0.5)
+#     time.sleep(8)
+#     buy()
+#     time.sleep(5)
+#     go_to_Line()
 
 
 actions = [
@@ -279,16 +287,16 @@ actions = [
     useQ,
     useW,
     useE,
-    useR,
-    useD,
-    useF,
-    goHome
+    useR
+    # useD,
+    # useF
+    # goHome
 ]
 
 
-def perform_action(action, champion, opponent, positions, gold):
+def perform_action(action, champion, opponent, positions):
     global actions
-    actions[action](champion, opponent, positions, gold)
+    actions[action](champion, opponent, positions)
 
 
 def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
@@ -304,8 +312,7 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
                             cv2.TM_CCOEFF_NORMED)
     _, max_val, _, _ = cv2.minMaxLoc(res)
     if max_val > 0.8:
-        (x, y) = (int(0.5 * width), int(0.45 * height))
-        left_click(x, y)
+        click_image('images.get("OK")')
         time.sleep(15)
         raise RuntimeError('Inactive for too long')
     # opponent health
@@ -371,77 +378,77 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
     else:
         stats['R'] = False
 
-    # abilitiesD
-    region = (int(0.52 * width), int(0.89 * height), int(0.55 * width), int(0.92 * height))
-    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
-    res = cv2.matchTemplate(img_gray, templateD, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, _ = cv2.minMaxLoc(res)
-    if max_val > 0.8:
-        stats['D'] = True
-    else:
-        stats['D'] = False
-
-    # abilitiesF
-    region = (int(0.545 * width), int(0.89 * height), int(0.57 * width), int(0.92 * height))
-    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
-    res = cv2.matchTemplate(img_gray, templateF, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, _ = cv2.minMaxLoc(res)
-    if max_val > 0.8:
-        stats['F'] = True
-    else:
-        stats['F'] = False
+    # # abilitiesD
+    # region = (int(0.52 * width), int(0.89 * height), int(0.55 * width), int(0.92 * height))
+    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    # res = cv2.matchTemplate(img_gray, templateD, cv2.TM_CCOEFF_NORMED)
+    # _, max_val, _, _ = cv2.minMaxLoc(res)
+    # if max_val > 0.8:
+    #     stats['D'] = True
+    # else:
+    #     stats['D'] = False
+    #
+    # # abilitiesF
+    # region = (int(0.545 * width), int(0.89 * height), int(0.57 * width), int(0.92 * height))
+    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    # res = cv2.matchTemplate(img_gray, templateF, cv2.TM_CCOEFF_NORMED)
+    # _, max_val, _, _ = cv2.minMaxLoc(res)
+    # if max_val > 0.8:
+    #     stats['F'] = True
+    # else:
+    #     stats['F'] = False
     return stats
 
 
-if __name__ == '__main__':
-    # img = cv2.imread('Image/testImage/Screen22.png', 0)
-    # img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # template = cv2.imread('Image/Ingame/Ashe.png', 0)
-    # res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-    # _, max_val, _, _ = cv2.minMaxLoc(res)
-    # if max_val > 0.8:
-    #     print(1)
-    perform_action(14, 'xx', 'xx', [1, 2, 3], 500)
-
-    state = {
-
-        'kills': 0,
-        'deaths': 0,
-        'assists': 0,
-        'minion_kills': 0,
-        'health': 100,
-        'mana': 100,
-        'opponent_health': 100,
-        'Q': False,
-        'W': False,
-        'E': False,
-        'R': False,
-        'D': True,
-        'F': True
-
-    }
-    sct = mss()
-    time.sleep(5)
-    leave_custom_game(sct)
-    EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
-    opponent_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    abilitiesQ_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    abilitiesW_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    abilitiesE_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    abilitiesR_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-    abilitiesD_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
-    abilitiesF_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
-    while True:
-        sct_img = sct.grab(sct.monitors[1])
-        start = time.time()
-        # open_cv_image = np.array(pyautogui.screenshot(region=(960, 540, 1920, 1080)))[:, :, ::-1].copy()
-        stats = get_stats(sct_img, state, opponent_template, abilitiesQ_template,
-                          abilitiesW_template, abilitiesE_template, abilitiesR_template,
-                          abilitiesD_template, abilitiesF_template)
-        print(time.time() - start)
-        cv2.imshow('image', np.array(sct_img))
-        if cv2.waitKey(1) & 0Xff == ord('q'):
-            break
+# if __name__ == '__main__':
+#     # img = cv2.imread('Image/testImage/Screen22.png', 0)
+#     # img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#     # template = cv2.imread('Image/Ingame/Ashe.png', 0)
+#     # res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+#     # _, max_val, _, _ = cv2.minMaxLoc(res)
+#     # if max_val > 0.8:
+#     #     print(1)
+#     # perform_action(13, 'xx', 'xx', [1, 2, 3])
+#
+#     state = {
+#
+#         'kills': 0,
+#         'deaths': 0,
+#         'assists': 0,
+#         'minion_kills': 0,
+#         'health': 100,
+#         'mana': 100,
+#         'opponent_health': 100,
+#         'Q': False,
+#         'W': False,
+#         'E': False,
+#         'R': False
+#         # 'D': True,
+#         # 'F': True
+#
+#     }
+#     sct = mss()
+#     time.sleep(5)
+#     # leave_custom_game()
+#     EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
+#     opponent_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+#     abilitiesQ_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+#     abilitiesW_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+#     abilitiesE_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+#     abilitiesR_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+#     abilitiesD_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
+#     abilitiesF_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
+#     while True:
+#         sct_img = sct.grab(sct.monitors[1])
+#         start = time.time()
+#         # open_cv_image = np.array(pyautogui.screenshot(region=(960, 540, 1920, 1080)))[:, :, ::-1].copy()
+#         stats = get_stats(sct_img, state, opponent_template, abilitiesQ_template,
+#                           abilitiesW_template, abilitiesE_template, abilitiesR_template,
+#                           abilitiesD_template, abilitiesF_template)
+#         print(time.time() - start)
+#         cv2.imshow('image', np.array(sct_img))
+#         if cv2.waitKey(1) & 0Xff == ord('q'):
+#             break
     # time.sleep(5)
     # PressKeyPynput(DIK_Y)
     # ReleaseKeyPynput(DIK_Y)

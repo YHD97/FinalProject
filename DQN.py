@@ -6,38 +6,22 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam, RMSprop
 
 
-def DQN(n_actions, learning_rate=0.00001, input_shape=(640, 640), history_length=1):
-    model_input = Input(shape=(input_shape[0], input_shape[1], history_length))
-    x = Lambda(lambda layer: layer / 255)(model_input)  # normalize by 255
+def DQN(n_actions, learning_rate=0.00001, input_shape=(84, 84), history_length=4):
+    input = Input(shape=(input_shape[0], input_shape[1], history_length))
 
-    x = Conv2D(32, (8, 8), strides=4, kernel_initializer=VarianceScaling(scale=2.), activation='relu', use_bias=False)(
-        x)
-    x = Conv2D(64, (4, 4), strides=2, kernel_initializer=VarianceScaling(scale=2.), activation='relu', use_bias=False)(
-        x)
-    x = Conv2D(64, (3, 3), strides=1, kernel_initializer=VarianceScaling(scale=2.), activation='relu', use_bias=False)(
-        x)
-    x = Conv2D(1024, (7, 7), strides=1, kernel_initializer=VarianceScaling(scale=2.), activation='relu',
-               use_bias=False)(x)
+    lamb = Lambda(lambda x: (2 * x - 255) / 255.0, )(input)
 
-    # Split into value and advantage streams
-    val_stream, adv_stream = Lambda(lambda w: tf.split(w, 2, 3))(x)  # custom splitting layer
-
-    val_stream = Flatten()(val_stream)
-    val = Dense(1, kernel_initializer=VarianceScaling(scale=2.))(val_stream)
-
-    adv_stream = Flatten()(adv_stream)
-    adv = Dense(n_actions, kernel_initializer=VarianceScaling(scale=2.))(adv_stream)
-
-    # Combine streams into Q-Values
-    reduce_mean = Lambda(lambda w: tf.reduce_mean(w, axis=1, keepdims=True))  # custom layer for reduce mean
-
-    q_vals = Add()([val, Subtract()([adv, reduce_mean(adv)])])
-
-    # Build model
-    model = Model(model_input, q_vals)
+    conv_1 = Conv2D(64, (16, 16), strides=(8, 8), activation='relu')(lamb)
+    conv_2 = Conv2D(64, (4, 4), strides=(2, 2), activation='relu')(conv_1)
+    conv_3 = Conv2D(64, (3, 3), strides=(1, 1), activation='relu')(conv_2)
+    conv_flattened = (Flatten())(conv_3)
+    hidden = Dense(512, activation='relu')(conv_flattened)
+    output = Dense(n_actions)(hidden)
+    model = Model(inputs=input, outputs=output)
     model.compile(Adam(learning_rate), loss=tf.keras.losses.Huber())
 
     return model
+
 
 
 if __name__ == '__main__':
