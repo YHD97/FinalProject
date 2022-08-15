@@ -14,8 +14,8 @@ from PIL import Image, ImageOps
 
 MAX_WIDTH, MAX_HEIGHT = 1920, 1080
 
-pytesseract.pytesseract.tesseract_cmd = r'D:\anaconda3\envs\yolov5\Library\bin\tesseract.exe'
-tessdata_dir_config = '--psm 6 --tessdata-dir "D:/anaconda3/envs/yolov5/Lib/site-packages/pytesseract/tessdata"'
+pytesseract.pytesseract.tesseract_cmd = r'D:\anaconda3\envs\lol\Library\bin\tesseract.exe'
+tessdata_dir_config = '--psm 6 --tessdata-dir "D:/anaconda3/envs/lol/Lib/site-packages/pytesseract/tessdata"'
 
 images = {
     "Ashe": "Image/SetGame/Ashe.png",
@@ -36,7 +36,6 @@ purchased_items = []
 
 
 def buy():
-    # current_ =
     pydirectinput.press('p')
     item_path = [('Long Sword', 450)]
 
@@ -47,17 +46,15 @@ def buy():
         pydirectinput.keyUp('l')
 
         pyautogui.write(item_path[0][0])
-        # current_ -= item_path[0][1]
-        # purchased_items.append(item_path.pop(0))
+
         cast_action('enter', 0.2)
     cast_action('esc', 0.2)
 
 
 def go_to_Line():
     global MAX_WIDTH, MAX_HEIGHT
-    MAX_WIDTH = mss().monitors[1]['width']  # 3840
-    MAX_HEIGHT = mss().monitors[1]['height']  # 2160
-    # mouse_controller.position = (int(0.9223958 * MAX_WIDTH), int(0.8777777 * MAX_HEIGHT))
+    MAX_WIDTH = mss().monitors[1]['width']
+    MAX_HEIGHT = mss().monitors[1]['height']
 
     right_click(int(0.97 * MAX_WIDTH), int(0.965 * MAX_HEIGHT))
     time.sleep(30)
@@ -123,7 +120,6 @@ def find_subset_indices(sub, lst):
 def wait_for_game():
     retries = 100
     while retries:
-        # if not pyautogui.locateOnScreen('Image/Ingame/CheckGame.png', region=(960, 540, 1920, 1080)):
         if not pyautogui.locateOnScreen(images['CheckGame']):
             retries -= 1
             time.sleep(1)
@@ -350,7 +346,7 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
 
     # abilitiesW
     region = (int(0.42 * width), int(0.88 * height), int(0.45 * width), int(0.94 * height))
-    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
     res = cv2.matchTemplate(img_gray, templateW, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, _ = cv2.minMaxLoc(res)
     if max_val > 0.8:
@@ -359,7 +355,7 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
         stats['W'] = False
     # abilitiesE
     region = (int(0.45 * width), int(0.88 * height), int(0.48 * width), int(0.98 * height))
-    # img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(np.array(orig_img.crop(region))[:, :, ::-1], cv2.COLOR_BGR2GRAY)
     res = cv2.matchTemplate(img_gray, templateE, cv2.TM_CCOEFF_NORMED)
     _, max_val, _, _ = cv2.minMaxLoc(res)
 
@@ -400,55 +396,55 @@ def get_stats(sct_img, stats, template, templateQ, templateW, templateE,
     return stats
 
 
-# if __name__ == '__main__':
-#     # img = cv2.imread('Image/testImage/Screen22.png', 0)
-#     # img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#     # template = cv2.imread('Image/Ingame/Ashe.png', 0)
-#     # res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-#     # _, max_val, _, _ = cv2.minMaxLoc(res)
-#     # if max_val > 0.8:
-#     #     print(1)
-#     # perform_action(13, 'xx', 'xx', [1, 2, 3])
-#
-#     state = {
-#
-#         'kills': 0,
-#         'deaths': 0,
-#         'assists': 0,
-#         'minion_kills': 0,
-#         'health': 100,
-#         'mana': 100,
-#         'opponent_health': 100,
-#         'Q': False,
-#         'W': False,
-#         'E': False,
-#         'R': False
-#         # 'D': True,
-#         # 'F': True
-#
-#     }
-#     sct = mss()
-#     time.sleep(5)
-#     # leave_custom_game()
-#     EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
-#     opponent_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-#     abilitiesQ_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-#     abilitiesW_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-#     abilitiesE_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-#     abilitiesR_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
-#     abilitiesD_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
-#     abilitiesF_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
-#     while True:
-#         sct_img = sct.grab(sct.monitors[1])
-#         start = time.time()
-#         # open_cv_image = np.array(pyautogui.screenshot(region=(960, 540, 1920, 1080)))[:, :, ::-1].copy()
-#         stats = get_stats(sct_img, state, opponent_template, abilitiesQ_template,
-#                           abilitiesW_template, abilitiesE_template, abilitiesR_template,
-#                           abilitiesD_template, abilitiesF_template)
-#         print(time.time() - start)
-#         cv2.imshow('image', np.array(sct_img))
-#         if cv2.waitKey(1) & 0Xff == ord('q'):
-#             break
+if __name__ == '__main__':
+    # img = cv2.imread('Image/testImage/Screen22.png', 0)
+    # img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # template = cv2.imread('Image/Ingame/Ashe.png', 0)
+    # res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+    # _, max_val, _, _ = cv2.minMaxLoc(res)
+    # if max_val > 0.8:
+    #     print(1)
+    # perform_action(13, 'xx', 'xx', [1, 2, 3])
+
+    state = {
+
+        'kills': 0,
+        'deaths': 0,
+        'assists': 0,
+        'minion_kills': 0,
+        'health': 100,
+        'mana': 100,
+        'opponent_health': 100,
+        'Q': False,
+        'W': False,
+        'E': False,
+        'R': False
+        # 'D': True,
+        # 'F': True
+
+    }
+    sct = mss()
+    time.sleep(5)
+    # leave_custom_game()
+    EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
+    opponent_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesQ_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesW_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesE_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesR_template = cv2.imread('D:\FinalProject\Image\Ingame\Ashe.png', 0)
+    abilitiesD_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
+    abilitiesF_template = cv2.imread('D:\FinalProject\Image\Ingame\D.png', 0)
+    while True:
+        sct_img = sct.grab(sct.monitors[1])
+        start = time.time()
+        # open_cv_image = np.array(pyautogui.screenshot(region=(960, 540, 1920, 1080)))[:, :, ::-1].copy()
+        stats = get_stats(sct_img, state, opponent_template, abilitiesQ_template,
+                          abilitiesW_template, abilitiesE_template, abilitiesR_template,
+                          abilitiesD_template, abilitiesF_template)
+        print(time.time() - start)
+        cv2.imshow('image', np.array(sct_img))
+        if cv2.waitKey(1) & 0Xff == ord('q'):
+            break
     # time.sleep(5)
     # PressKeyPynput(DIK_Y)
     # ReleaseKeyPynput(DIK_Y)

@@ -9,7 +9,7 @@ from collections import defaultdict
 
 class Detect:
     def __init__(self, conf=0.8, yolo='yolov5s'):
-        self.model_path = r'D:\FinalProject\gymLoL\gym_LoL\envs\model\Yolov5model\YOLOv5-1080p-200Time\best.pt'  # path to model
+        self.model_path = r'D:\FinalProject\gymLoL\gym_LoL\envs\model\Yolov5model\Yolov5-640p-200time\best.pt'  # path to model
         self.conf = conf  # default is 0.30
         self.yolo = yolo  # default is yolov5s
         self.dict = defaultdict(lambda: None)
@@ -21,7 +21,6 @@ class Detect:
 
     def run(self, img):
         self.dict.clear()
-        # self.state['positions']['myChampion'] = champion_position
         model = self.load_model()
         model.conf = self.conf
         results = model(img, 1080)
@@ -35,25 +34,22 @@ class Detect:
                 y2 = int(result['ymax'])
                 name = result['name']
                 print(result)
-                # print((x2 - x1) / 2 + x1, (y2 - y1) / 2 + y1, name)
-                # disc[name].update([(x2 - x1) / 2 + x1, (y2 - y1) / 2 + y1])
+
                 self.dict[name] = [(x2 - x1) / 2 + x1, (y2 - y1) / 2 + y1]
-                # frame = np.squeeze(results.imgs)
-                # draw the box
+
         print(self.dict)
         return self.dict, results
 
 
 if __name__ == '__main__':
 
-    # from yolov7.hubconf import custom
-    # model = custom(path_or_model='yolov7/best.pt')
+
     model = Detect()
 
     EOG_BOX = {"left": 960, "top": 540, "width": 1920, "height": 1080}
 
     sct = mss()
-
+    img0 = cv2.imread(r'D:\FinalProject\Image\testImage\Screen02.png')
     while True:
 
         start_time = time.time()
@@ -67,13 +63,13 @@ if __name__ == '__main__':
         # frame = np.squeeze(results.imgs)
         # draw the box
         frame = np.squeeze(results.render())
-        frame = cv2.resize(frame, (640,640), interpolation = cv2.INTER_AREA)
+        frame = cv2.resize(frame, (960,540), interpolation = cv2.INTER_AREA)
         cycle_time = time.time() - start_time
         cv2.putText(frame, "FPS: {}".format(str(round(1 / cycle_time, 2))), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (0, 0, 255), 2)
         cv2.imshow('LOL', frame)
         # resize the show window
-        cv2.resizeWindow('LOL', 640,1080)
+        #cv2.resizeWindow('LOL', 1920,1080)
 
         if cv2.waitKey(25) & 0xFF == ord('0'):  # 按q退出，记得输入切成英语再按q
             cv2.destroyAllWindows()

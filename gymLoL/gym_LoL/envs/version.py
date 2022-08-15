@@ -49,10 +49,6 @@ def test(img0=None):
     # print(type(hero_postion),enemy_heros_postion)
 
     for pos in enemyChampionPosition:
-        # p3 = pos - hero_postion[0]
-        # print(p3)
-        # p4 = math.hypot(p3[0], p3[1])
-        # print(p4)
         cv2.circle(img0, tuple(pos), 10, (255, 255, 255), 5)
 
     allyMinions = targetPosition.allUnitPosition['allyMinions']
@@ -71,15 +67,11 @@ if __name__ == '__main__':
         open_cv_image = np.array(pyautogui.screenshot(region=(940, 520, 1940, 1100)))[:, :, ::-1].copy()
         startTime = time.time()
         open_cv_image = test(open_cv_image)
+        cycle_time = time.time() - startTime
+        cv2.putText(open_cv_image, "FPS: {}".format(str(round(1 / cycle_time, 2))), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    (0, 0, 255), 2)
         cv2.imshow('image', open_cv_image)
         print(1 / (time.time() - startTime))
         if cv2.waitKey(1) & 0Xff == ord('q'):
             break
 
-        # {'myChampion': array([[872, 442]]),
-        #  'enemyChampion': array([], dtype=float64),
-        #  'allyMinions': array([[1210, 888],
-        #                        [1145, 821]]),
-        #  'enemyMinions': array([], dtype=float64),
-        #  'emenyTurret': array([], dtype=float64),
-        #  'allyTurret': array([], dtype=float64)}

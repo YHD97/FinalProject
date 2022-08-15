@@ -18,8 +18,9 @@
       <sourceFolder url="file://$MODULE_DIR$/yolov7/cfg/baseline" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/yolov7/cfg/deploy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/yolov7/cfg/training" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Image" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (yolov5)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.9 (lol)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
