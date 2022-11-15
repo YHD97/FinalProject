@@ -157,15 +157,12 @@ from Agent import Agent
 tf.config.experimental.enable_tensor_float_32_execution(False)
 ENV_NAME = 'gymLoL-v0'
 
-
 LOAD_FROM = None
 SAVE_PATH = '../LeagueAIDQN'
 LOAD_REPLAY_BUFFER = True
 
 WRITE_TENSORBOARD = True
 TENSORBOARD_DIR = '../tensorboardDQN/'
-
-
 
 TOTAL_FRAMES = 3000  # 3000  # Total number of frames to train for
 FRAMES_BETWEEN_EVAL = 100  # 100  # Number of frames between evaluations
@@ -201,11 +198,10 @@ agent = Agent(MAIN_DQN, TARGET_DQN, replay_buffer, ACTION_SPACE, input_shape=INP
 
 # This function can resize to any shape, but was built to resize to 84x84
 def process_frame(frame, shape=(84, 84)):
-
     frame = frame.astype(np.uint8)  # cv2 requires np.uint8, other dtypes will not work
 
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-    frame = frame[34:34 + 160, :160]  # crop image
+    frame = frame[270:, 720:]  # crop image
     frame = cv2.resize(frame, shape, interpolation=cv2.INTER_NEAREST)
     frame = frame.reshape((*shape, 1))
 
@@ -291,8 +287,7 @@ try:
 
             MAIN_DQN.save('D:\FinalProject\DQNDATA\DQN.h5')
             TARGET_DQN.save('D:\FinalProject\DQNDATA\Target_DQN.h5')
-            np.save('../DQNDATA/episode_reward_history_10.npy', rewards, allow_pickle=True,
-                    fix_imports=True)
+            np.save('../DQNDATA/episode_reward_history_10.npy', rewards, allow_pickle=True, fix_imports=True)
             np.save('../DQNDATA/playerState.npy', player_list, allow_pickle=True, fix_imports=True)
             np.save('../DQNDATA/loss.npy', loss_list, allow_pickle=True, fix_imports=True)
 
@@ -307,7 +302,6 @@ try:
                     isDeaded = True
                     episode_reward_sum = 0
                     terminal = False
-
 
                 action = 1 if isDeaded else agent.get_action(frame_number, state, evaluation=True)
 

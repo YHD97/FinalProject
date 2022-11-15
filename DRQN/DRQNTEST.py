@@ -12,15 +12,12 @@ from DRQN.DRQNAgent import DRQNAgent
 
 ENV_NAME = 'gymLoL-v0'
 
-
-LOAD_FROM = 'DRQNmodel/save-00003088'
+LOAD_FROM = 'save-00002773'
 SAVE_PATH = 'LeagueAIDRQN'
 LOAD_REPLAY_BUFFER = True
 
 WRITE_TENSORBOARD = True
 TENSORBOARD_DIR = '../tensorboard5/'
-
-
 
 PRIORITY_SCALE = 0.7
 
@@ -45,7 +42,6 @@ INPUT_SHAPE = env.observation_space.shape
 ACTION_SPACE = env.action_space.n
 print("The environment has the following actions: {},{}".format(ACTION_SPACE, INPUT_SHAPE))
 
-
 # Build main and target networks
 MAIN_DQN = DRQN(ACTION_SPACE, LEARNING_RATE, input_shape=INPUT_SHAPE)
 TARGET_DQN = DRQN(ACTION_SPACE, input_shape=INPUT_SHAPE)
@@ -56,11 +52,10 @@ agent = DRQNAgent(MAIN_DQN, TARGET_DQN, replay_buffer, ACTION_SPACE, input_shape
 
 
 def process_frame(frame, shape=(84, 84)):
-
     frame = frame.astype(np.uint8)
 
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-    frame = frame[34:34 + 160, :160]
+    frame = frame[270:, 720:]
     frame = cv2.resize(frame, shape, interpolation=cv2.INTER_NEAREST)
     frame = frame.reshape((*shape, 1))
 
@@ -82,7 +77,7 @@ else:
     loss_list = meta['loss_list']
     print('Loaded')
 
-n_episodes = 10
+n_episodes = 1
 returns = []
 rewards_list = []
 statelist = []

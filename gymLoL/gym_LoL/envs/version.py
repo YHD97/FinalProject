@@ -10,7 +10,7 @@ import MinionsPosition
 
 class targetDetacter():
     def __init__(self):
-        self.bounding_box = (940, 520, 1940, 1100),
+        self.bounding_box = (940, 520, 1940, 1100)
         # self.img = np.array(pyautogui.screenshot(region=self.bounding_box))[:, :, ::-1].copy()
         self.sct_original = None
         self.sct_img = None

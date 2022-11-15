@@ -144,6 +144,9 @@ class Agent(object):
         """
 
         # Calculate epsilon based on the frame number
+        # 根据帧数计算epsilon
+        #在前50个动作，epsilon是1
+        #随后逐渐递减
         eps = self.calc_epsilon(frame_number, evaluation)
 
         # With chance epsilon, take a random action
@@ -153,7 +156,7 @@ class Agent(object):
         # Otherwise, query the DQN for an action
         q_vals = self.DQN.predict(state.reshape((-1, self.input_shape[0], self.input_shape[1], self.history_length)))[0]
         return q_vals.argmax()
-
+    # 没有用处
     def get_intermediate_representation(self, state, layer_names=None, stack_state=True):
         """
         Get the output of a hidden layer inside the model.  This will be/is used for visualizing model
@@ -196,11 +199,14 @@ class Agent(object):
             batch_size=self.batch_size)
 
         # Main DQN estimates best action in new states
+        # 得到最高的Q值的动作
         arg_q_max = self.DQN.predict(new_states).argmax(axis=1)
-
         # Target DQN estimates q-vals for new states
+        #得到所有动作的Q值
         future_q_vals = self.target_dqn.predict(new_states)
+        #在targetQ中得到和main Q相同动作的Q值
         double_q = future_q_vals[range(batch_size), arg_q_max]
+
 
         # Calculate targets (bellman equation)
         target_q = rewards + (gamma * double_q * (1 - terminal_flags))

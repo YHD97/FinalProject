@@ -7,6 +7,8 @@ from tensorflow.keras.optimizers import Adam, RMSprop
 
 
 def DRQN(n_actions, learning_rate=0.00001, input_shape=(84, 84), history_length=4, input_depth=1):
+    # input_depth: Defining the size of the input's third dimension
+    # param  history_size : int (Default: 4)Number of sequential frames that will be stacked together to form the input volume to the NN.
     input = Input(shape=(history_length, input_shape[0], input_shape[1], input_depth))
     lamb = Lambda(lambda x: (2 * x - 255) / 255.0, )(input)
 

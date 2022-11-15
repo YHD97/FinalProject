@@ -17,8 +17,6 @@ from mss import mss
 import random
 
 
-# from .Version.ChampionPosition import ChampionPosition
-
 
 class LoLEnv(gym.Env):
     metadata = {'render.modes': ['human']}

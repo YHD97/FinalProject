@@ -42,6 +42,7 @@ class ReplayBuffer:
             raise ValueError('Not enough memories to get a minibatch')
 
         # Get a list of valid indices
+        # indices = 32
         indices = []
         for i in range(batch_size):
             while True:

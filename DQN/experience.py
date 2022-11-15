@@ -42,15 +42,11 @@ class ReplayBuffer:
         if self.count < self.history_length:
             raise ValueError('Not enough memories to get a minibatch')
 
-
         # Get a list of valid indices
         indices = []
         for i in range(batch_size):
             while True:
-
                 index = random.randint(self.history_length, self.count - 1)
-
-
                 if index >= self.current and index - self.history_length <= self.current:
                     continue
                 if self.terminal_flags[index - self.history_length:index].any():
